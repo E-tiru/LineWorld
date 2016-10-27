@@ -2,6 +2,9 @@ var size;
 var walk_flg = 0;
 var touching = false;
 var touching_jump = false;
+var Starget = 0;
+var Key = false;
+
 //スプライトフレームを作成
 var chara;
 var moveframe1;
@@ -50,8 +53,8 @@ var gameScene = cc.Scene.extend({
       this.addChild(level);
       var player = new playerLayer();
       this.addChild(player);
-      var enemys = new enemyLayer();
-      this.addChild(enemys);
+      //var enemys = new enemyLayer();
+      //this.addChild(enemys);
    }
 });
 
@@ -79,30 +82,59 @@ var levelLayer = cc.Layer.extend({
       for (i = 0; i < 14; i++) {　　　　　　
          for (j = 0; j < 33; j++) {
             switch (level[i][j]) {
+              //足場ライン
               case 1:
                  var LineSprite = cc.Sprite.create(res.Line);
                  LineSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
                  this.addChild(LineSprite);
                  break;
+              //ブロックLine
               case 2:
                  var blockSprite = cc.Sprite.create(res.Lineblock);
                  blockSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
                  this.addChild(blockSprite);
                  break;
+              //色付き足場ライン青
               case 4:
                  var Line_BlueSprite = cc.Sprite.create(res.Line_Blue);
                  Line_BlueSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
                  this.addChild(Line_BlueSprite);
                  break;
+            //色付き足場Line赤
              case 5:
                  var Line_RedSprite = cc.Sprite.create(res.Line_Red);
                  Line_RedSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
                  this.addChild(Line_RedSprite);
                  break;
+            //色付き足場ライン黄色
              case 6:
                  var Line_YellowSprite = cc.Sprite.create(res.Line_Yellow);
                  Line_YellowSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
                  this.addChild(Line_YellowSprite);
+                 break;
+            //壁
+             case 7:
+                 var Wall_LineSprite = cc.Sprite.create(res.Wall_Line);
+                 Wall_LineSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Wall_LineSprite);
+                 break;
+            //壁青
+             case 8:
+                 var Wall_Line_BlueSprite = cc.Sprite.create(res.Wall_Line_Blue);
+                 Wall_Line_BlueSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Wall_Line_BlueSprite);
+                 break;
+            //壁赤
+             case 9:
+                 var Wall_Line_RedSprite = cc.Sprite.create(res.Wall_Line_Red);
+                 Wall_Line_RedSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Wall_Line_RedSprite);
+                 break;
+            //壁黄色
+             case 10:
+                 var Wall_Line_YellowSprite = cc.Sprite.create(res.Wall_Line_Yellow);
+                 Wall_Line_YellowSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Wall_Line_YellowSprite);
                  break;
 
 
@@ -123,6 +155,62 @@ var playerLayer = cc.Layer.extend({
       this._super();
       player = new Player();
       this.addChild(player);
+//===============スコア、鍵アイテムの追加=====================//
+//================スコアアイテム３====================//
+    topLayer = cc.Layer.create();
+    this.addChild(topLayer);
+    if (Starget >= 3)   //スコアアイテムを3つ手に入れてるか？
+    {
+      Star = cc.Sprite.create(res.StarGet_png);
+    }
+    else
+    {
+      Star = cc.Sprite.create(res.StarClear_png);
+    }
+    topLayer.addChild(Star, 0);
+    Star.setPosition(winSize.width / 1.85, winSize.height / 1.05);
+//==================スコアアイテム２===============//
+    topLayer = cc.Layer.create();
+    this.addChild(topLayer);
+    if (Starget >= 2)   //スコアアイテムを2つ手に入れてるか？
+    {
+      Star2 = cc.Sprite.create(res.StarGet_png);
+    }
+    else
+    {
+      Star2 = cc.Sprite.create(res.StarClear_png);
+    }
+    topLayer.addChild(Star2, 0);
+    Star2.setPosition(winSize.width / 2, winSize.height / 1.05);
+
+//=================スコアアイテム１===============//
+    topLayer = cc.Layer.create();
+    this.addChild(topLayer);
+    if (Starget >= 1)   //スコアアイテムを1つ手に入れてるか？
+    {
+      Star3 = cc.Sprite.create(res.StarGet_png);
+    }
+    else
+    {
+      Star3 = cc.Sprite.create(res.StarClear_png);
+    }
+    topLayer.addChild(Star3, 0);
+    Star3.setPosition(winSize.width / 2.18, winSize.height / 1.05);
+
+//===========鍵アイテムの表示設定=================//
+    topLayer = cc.Layer.create();
+    this.addChild(topLayer);
+    if (Key)   //鍵アイテムを手に入れているか？(trueか？)
+    {
+      Key = cc.Sprite.create(res.keyGet_png);
+    }
+    else
+    {
+      Key = cc.Sprite.create(res.KeyClear_png);
+    }
+    topLayer.addChild(Key, 0);
+    Key.setPosition(winSize.width / 1.7, winSize.height / 1.05);
+//===================================================================//
       //ショッピングカートを操作するレイヤー
 
       //左ボタン
