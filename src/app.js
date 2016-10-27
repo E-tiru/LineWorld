@@ -1,6 +1,7 @@
 var size;
 var walk_flg = 0;
 var touching = false;
+var touching_jump = false;
 //スプライトフレームを作成
 var chara;
 var moveframe1;
@@ -15,11 +16,13 @@ var level = [
    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-   [0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
+   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
    [0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
    [0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-   [0, 0, 0, 0, 3, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+   [0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ];
 var tileSize = 32;
@@ -73,19 +76,39 @@ var levelLayer = cc.Layer.extend({
    ctor: function() {
       this._super();
       var size = cc.director.getWinSize();
-      for (i = 0; i < 12; i++) {　　　　　　
+      for (i = 0; i < 14; i++) {　　　　　　
          for (j = 0; j < 33; j++) {
             switch (level[i][j]) {
-               case 1:
-                  var LineSprite = cc.Sprite.create(res.Line);
-                  LineSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (12 - i) - tileSize / 2);
-                  this.addChild(LineSprite);
-                  break;
-               case 2:
-                  var blockSprite = cc.Sprite.create(res.Lineblock);
-                  blockSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (12 - i) - tileSize / 2);
-                  this.addChild(blockSprite);
-                  break;
+              case 1:
+                 var LineSprite = cc.Sprite.create(res.Line);
+                 LineSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(LineSprite);
+                 break;
+              case 2:
+                 var blockSprite = cc.Sprite.create(res.Lineblock);
+                 blockSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(blockSprite);
+                 break;
+              case 4:
+                 var Line_BlueSprite = cc.Sprite.create(res.Line_Blue);
+                 Line_BlueSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Line_BlueSprite);
+                 break;
+             case 5:
+                 var Line_RedSprite = cc.Sprite.create(res.Line_Red);
+                 Line_RedSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Line_RedSprite);
+                 break;
+             case 6:
+                 var Line_YellowSprite = cc.Sprite.create(res.Line_Yellow);
+                 Line_YellowSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Line_YellowSprite);
+                 break;
+
+
+
+
+
             }
          }
       }
@@ -143,10 +166,10 @@ var Player = cc.Sprite.extend({
       this.xSpeed = 0;
       this.ySpeed = 0;
       this.jumpFlag = false;
-      for (i = 0; i < 12; i++) {　　　　　　
+      for (i = 0; i < 14; i++) {　　　　　　
          for (j = 0; j < 33; j++) {
             if (level[i][j] == 3) {
-               this.setPosition(tileSize / 2 + tileSize * j, 32 * (12 - i) - tileSize / 2);
+               this.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
                playerPosition = {
                   x: j,
                   y: i
@@ -154,70 +177,6 @@ var Player = cc.Sprite.extend({
             }
          }
       }
-      //this.schedule(this.working,0.08);
-      /*
-        // 2.　SpriteFrame　を利用しての歩行アニメーション
-          //スプライトフレームを格納する配列
-          var animationframe = [];
-          //スプライトフレームを作成
-          var frame1 = new cc.SpriteFrame(res.player01_png, cc.rect(0, 0, 96, 96));
-          var frame2 = new cc.SpriteFrame(res.player02_png, cc.rect(0, 0, 96, 96));
-          //スプライトフレームを配列に登録
-          animationframe.push(frame1);
-          animationframe.push(frame2);
-          //スプライトフレームの配列を連続再生するアニメーションの定義
-          var animation = new cc.Animation(animationframe, 0.08);
-          //永久ループのアクションを定義
-          var action = new cc.RepeatForever(new cc.animate(animation));
-          //実行
-          this.runAction(action);
-      */
-
-        //３．テクスチャーからスプライトフレームを切り出す方法
-        //スプライトフレームを格納する配列
-        //if(Player.workingFlag == false) {
-        /*var texture = cc.textureCache.addImage(res.Playerframe_png);
-        //スプライトフレームを作成
-        var frame1 = new cc.SpriteFrame.createWithTexture(texture, cc.rect(0, 0, 32, 32));
-        var frame2 = new cc.SpriteFrame.createWithTexture(texture, cc.rect(32, 0, 32, 32));
-        var frame3 = new cc.SpriteFrame.createWithTexture(texture, cc.rect(64, 0, 32, 32));
-        var frame4 = new cc.SpriteFrame.createWithTexture(texture, cc.rect(32, 0, 32, 32));
-        //スプライトフレームを配列に登録
-        var animationframe = [];
-        animationframe.push(frame1);
-        animationframe.push(frame2);
-        animationframe.push(frame3);
-        animationframe.push(frame4);
-        //スプライトフレームの配列を連続再生するアニメーションの定義
-        var animation = new cc.Animation(animationframe, 0.15);
-        //永久ループのアクションを定義
-        var action = new cc.RepeatForever(new cc.animate(animation));
-        this.runAction(action);*/
-        //}
-
-
-
-/*
-      // スプライトシートをキャッシュに登録
-      cc.spriteFrameCache.addSpriteFrames(res.player_plist, res.player_sheet);
-
-      // スプライトフレームを取得 player01,player02はplistの中で定義されいいる
-      var frame1 = cc.spriteFrameCache.getSpriteFrame("player01");
-      var frame2 = cc.spriteFrameCache.getSpriteFrame("player02");
-
-      //スプライトフレームを配列に登録
-      var animationframe = [];
-      animationframe.push(frame1);
-      animationframe.push(frame2);
-      //スプライトフレームの配列を連続再生するアニメーションの定義
-      var animation = new cc.Animation(animationframe, 0.08);
-      //永久ループのアクションを定義
-      var action = new cc.RepeatForever(new cc.animate(animation));
-      //実行
-      this.initWithFile(res.player_sheet);
-      this.runAction(action);
-      */
-
       this.scheduleUpdate();
    },
 
@@ -241,15 +200,24 @@ var Player = cc.Sprite.extend({
       }
       //位置を更新する
       this.setPosition(this.getPosition().x + this.xSpeed, this.getPosition().y + this.ySpeed);
-
+      if (touching == true){
         walk_flg++;
-        if (walk_flg == 10) chara.setTexture(res.Player2);
-        if (walk_flg == 20) chara.setTexture(res.Player3);
-        if (walk_flg == 30) chara.setTexture(res.Player2);
-        if (walk_flg == 40) {chara.setTexture(res.Player1);　walk_flg = 0;}
+        if (walk_flg == 10) chara = this.initWithFile(res.Player2);
+        if (walk_flg == 20) chara = this.initWithFile(res.Player3);
+        if (walk_flg == 30) chara = this.initWithFile(res.Player2);
+        if (walk_flg == 40) {chara = this.initWithFile(res.Player1);　walk_flg = 0;}
+      }
+      else {
+        chara = this.initWithFile(res.Player1);
+      }
+      /*if(touching_jump == true){
+        walk_flg++;
+        if(walk_flg == 5) chara = this.initWithFile(res.PlayerJump);
+      }
+      else{
+        chara = this.initWithFile(res.Player1);
+      }*/
     }
-
-
 });
 
 
@@ -263,8 +231,7 @@ var listener = cc.EventListener.create({
       var location = target.convertToNodeSpace(touch.getLocation());
       var spriteSize = target.getContentSize();
       var spriteRect = cc.rect(0, 0, spriteSize.width, spriteSize.height);
-      //タッチしているというフラグオン
-      touching = true;
+
       //タッチした場所が、スプライトの内部に収まっていたら
       if (cc.rectContainsPoint(spriteRect, location)) {
          console.log(target.getTag() + "Btnがタッチされました");
@@ -276,6 +243,8 @@ var listener = cc.EventListener.create({
             player.workingFlag = true;
             leftBtn.setOpacity(255);
             rightBtn.setOpacity(128);
+            //タッチしているというフラグオン
+            touching = true;
          } else {
             //タッチしたスプライトが右ボタンだったら
             if (target.getTag()　 == 2) {
@@ -283,6 +252,8 @@ var listener = cc.EventListener.create({
                player.workingFlag = true;
                rightBtn.setOpacity(255);
                leftBtn.setOpacity(128);
+               //タッチしているというフラグオン
+               touching = true;
             }
          }
          //タッチしたスプライトがジャンプボタンだったら
@@ -290,6 +261,9 @@ var listener = cc.EventListener.create({
             if (player.jumpFlag == false && player.ySpeed == 0) player.ySpeed = 9;
             player.jumpFlag = true;
             jumpBtn.setOpacity(255);
+            touching = true;
+            //ジャンプボタンタッチフラグオン
+            //touching_jump = true;
          }
       }
       return true;
@@ -298,6 +272,7 @@ var listener = cc.EventListener.create({
    onTouchEnded: function(touch, event) {
      //タッチ終了時タッチフラグをオフ
      touching = false;
+     //touching_jump = false;
       player.jumpFlag = false;
       player.workingFlag = false;
       player.xSpeed = 0;
