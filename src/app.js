@@ -13,20 +13,20 @@ var moveframe3;
 var moveframe4;
 //1:地面　2:ブロック　3:プレイヤ　4:ゾンビ 5:こうもり
 var level = [
-   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0],
-   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-   [0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-   [0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-   [0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  1,  1,  1,  1,  1,  1,  1, 11,  1,  1,  1,  1],
+   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15,  0,  0,  0,  0],
+   [ 0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15,  0,  0,  0,  0],
+   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15,  0,  0,  0,  0],
+   [ 0,  0,  0,  2,  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15,  0,  0,  0,  0],
+   [ 0,  0,  0,  0,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15,  0,  0,  0,  0],
+   [ 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1]
 ];
 var tileSize = 32;
 var playerPosition; //マップ内のプレイやの位置(ｘ、ｙ)を保持する
@@ -136,10 +136,54 @@ var levelLayer = cc.Layer.extend({
                  Wall_Line_YellowSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
                  this.addChild(Wall_Line_YellowSprite);
                  break;
-
-
-
-
+                 //梯子上
+             case 11:
+                 var Ladder_TopSprite = cc.Sprite.create(res.Ladder_Top);
+                 Ladder_TopSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Ladder_TopSprite);
+                 break;
+                 //梯子上青
+             case 12:
+                 var Ladder_Top_BlueSprite = cc.Sprite.create(res.Ladder_Top_Blue);
+                 Ladder_Top_BlueSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Ladder_Top_Blue);
+                 break;
+                 //梯子上赤
+             case 13:
+                 var Ladder_Top_RedSprite = cc.Sprite.create(res.Ladder_Top_Red);
+                 Ladder_Top_RedSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Ladder_Top_Red);
+                 break;
+                 //梯子上黄色
+             case 14:
+                 var Ladder_Top_YellowSprite = cc.Sprite.create(res.Ladder_Top_Yellow);
+                 Ladder_Top_YellowSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Ladder_Top_YellowSprite);
+                 break;
+                 //梯子
+             case 15:
+                 var LadderSprite = cc.Sprite.create(res.Ladder);
+                 LadderSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(LadderSprite);
+                 break;
+                 //梯子青
+             case 16:
+                 var Ladder_BlueSprite = cc.Sprite.create(res.Ladder_Blue);
+                 Ladder_BlueSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Ladder_BlueSprite);
+                 break;
+                 //梯子赤
+             case 17:
+                 var Ladder_RedSprite = cc.Sprite.create(res.Ladder_Red);
+                 Ladder_RedSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Ladder_RedSprite);
+                 break;
+                 //梯子黄色
+             case 18:
+                 var Ladder_YellowSprite = cc.Sprite.create(res.Ladder_Yellow);
+                 Ladder_YellowSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
+                 this.addChild(Ladder_YellowSprite);
+                 break;
 
             }
          }
@@ -378,25 +422,29 @@ var keylistener = cc.EventListener.create({
    // swallowTouches: true,
 
    onKeyPressed: function(keyCode, event) {
-      if (keyCode == 65) { // a-Keyで左に移動
+      if (keyCode == 37) { // a-Keyで左に移動
          player.xSpeed = -2.5;
+         touching = true;
          leftBtn.setOpacity(255);
          rightBtn.setOpacity(128);
       }
-      if (keyCode == 68) { // d-Keyで左に移動
+      if (keyCode == 39) { // d-Keyで左に移動
          player.xSpeed = 2.5;
+         touching = true;
          rightBtn.setOpacity(255);
          leftBtn.setOpacity(128);
       }
-      if (keyCode == 32 || keycode == 38) { // スペースキーか上矢印キーでジャンプ
+      if (keyCode == 32 || keyCode == 38) { // スペースキーか上矢印キーでジャンプ
          if (player.jumpFlag == false && player.ySpeed == 0) player.ySpeed = 9;
          player.jumpFlag = true;
+         touching = true;
          jumpBtn.setOpacity(255);
       }
       return true;
    },
    onKeyReleased: function(keyCode, event) {
       player.jumpFlag = false;
+      touching = false;
       player.xSpeed = 0;
       //player.ySpeed = 0;
       leftBtn.setOpacity(128);
