@@ -334,10 +334,10 @@ var Player = cc.Sprite.extend({
       this.setPosition(this.getPosition().x + this.xSpeed, this.getPosition().y + this.ySpeed);
       if (touching == true){
         walk_flg++;
-        if (walk_flg == 10) chara = this.initWithFile(res.Player2);
-        if (walk_flg == 20) chara = this.initWithFile(res.Player3);
-        if (walk_flg == 30) chara = this.initWithFile(res.Player2);
-        if (walk_flg == 40) {chara = this.initWithFile(res.Player1);　walk_flg = 0;}
+        if (walk_flg == 5) chara = this.initWithFile(res.Player2);
+        if (walk_flg == 15) chara = this.initWithFile(res.Player3);
+        if (walk_flg == 25) chara = this.initWithFile(res.Player2);
+        if (walk_flg == 35) {chara = this.initWithFile(res.Player1);　walk_flg = 0;}
       }
       else {
         chara = this.initWithFile(res.Player1);
@@ -390,7 +390,7 @@ var listener = cc.EventListener.create({
          }
          //タッチしたスプライトがジャンプボタンだったら
          if (target.getTag()　 == 3) {
-            if (player.jumpFlag == false && player.ySpeed == 0) player.ySpeed = 9;
+            if (player.jumpFlag == false && player.ySpeed == 0) player.ySpeed = 5;
             player.jumpFlag = true;
             jumpBtn.setOpacity(255);
             touching = true;
@@ -435,7 +435,7 @@ var keylistener = cc.EventListener.create({
          leftBtn.setOpacity(128);
       }
       if (keyCode == 32 || keyCode == 38) { // スペースキーか上矢印キーでジャンプ
-         if (player.jumpFlag == false && player.ySpeed == 0) player.ySpeed = 9;
+         if (player.jumpFlag == false && player.ySpeed == 0) player.ySpeed = 5;
          player.jumpFlag = true;
          touching = true;
          jumpBtn.setOpacity(255);
