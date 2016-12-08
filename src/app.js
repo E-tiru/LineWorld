@@ -1,455 +1,246 @@
-var size;
-var walk_flg = 0;
-var touching = false;
-var touching_jump = false;
-var Starget = 0;
-var Key = false;
+var space;
+var shapeArray = [];
+var objectArray = [];
 
-//スプライトフレームを作成
-var chara;
-var moveframe1;
-var moveframe2;
-var moveframe3;
-var moveframe4;
-//1:地面　2:ブロック　3:プレイヤ　4:ゾンビ 5:こうもり
-var level = [
-   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
-   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  2,  1,  1,  1,  1,  1,  1,  1, 11,  1,  1,  1,  1],
-   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15,  0,  0,  0,  0],
-   [ 0,  0,  0,  0,  0,  0,  0,  2,  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15,  0,  0,  0,  0],
-   [ 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15,  0,  0,  0,  0],
-   [ 0,  0,  0,  2,  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15,  0,  0,  0,  0],
-   [ 0,  0,  0,  0,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 15,  0,  0,  0,  0],
-   [ 1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1]
-];
-var tileSize = 32;
-var playerPosition; //マップ内のプレイやの位置(ｘ、ｙ)を保持する
-var playerSprite; //プレイヤーのスプライト
+if (typeof SpriteTag == "undefined") {
+   var SpriteTag = {};
+   SpriteTag.terrain = 1;
 
-var leftBtn; //左ボタン
-var rightBtn; //右ボタン
-var jumpBtn; //ジャンプ
-var winSize;
+   SpriteTag.bomb = 2;
+   SpriteTag.koban = 4;
+   SpriteTag.food = 8;
+   SpriteTag.monster1 = 16;
+   SpriteTag.monster2 = 32;
 
+   SpriteTag.player = 128;
+
+};
+
+var callbacks = [];
+var PlayerStar_X = 140;
+
+
+
+var gameLayer;
 var gameScene = cc.Scene.extend({
    onEnter: function() {
       this._super();
-      var texture = cc.textureCache.addImage(res.Playerframe_png);
-      moveframe1 = new cc.SpriteFrame.createWithTexture(texture, cc.rect(0, 0, 32, 32));
-      moveframe2 = new cc.SpriteFrame.createWithTexture(texture, cc.rect(32, 0, 32, 32));
-      moveframe3 = new cc.SpriteFrame.createWithTexture(texture, cc.rect(64, 0, 32, 32));
-      moveframe4 = new cc.SpriteFrame.createWithTexture(texture, cc.rect(32, 0, 32, 32));
-      winSize = cc.director.getWinSize();
 
-      var background = new backgroundLayer();
-      this.addChild(background);
-      var level = new levelLayer();
-      this.addChild(level);
-      var player = new playerLayer();
-      this.addChild(player);
-      //var enemys = new enemyLayer();
-      //this.addChild(enemys);
+      var backgroundLayer = cc.LayerGradient.create(cc.color(255, 255, 255, 255), cc.color(255, 255, 255, 255));
+      this.addChild(backgroundLayer);
+
+      space = new cp.Space();
+      space.gravity = cp.v(0, -100);
+      var debugDraw = cc.PhysicsDebugNode.create(space);
+      debugDraw.setVisible(true);
+      this.addChild(debugDraw, 100);
+
+      var wallBottom = new cp.SegmentShape(space.staticBody,
+         cp.v(-4294967294, 1), // start point
+         cp.v(4294967295, 1), // MAX INT:4294967295
+         0); // thickness of wall
+      space.addStaticShape(wallBottom);
+
+      gameLayer = new game();
+      gameLayer.init();
+      this.addChild(gameLayer);
    }
 });
 
+var game = cc.Layer.extend({
+   player: null,
+   scroll_gb: null,
 
-var backgroundLayer = cc.Layer.extend({
-   ctor: function() {
+   init: function() {
       this._super();
 
-      var backgroundSprite = cc.Sprite.create(res.background_png);
-      var size = backgroundSprite.getContentSize();
-      //console.log(size);
-      this.addChild(backgroundSprite);
-      //console.log(winSize.width,winSize.height);
-      backgroundSprite.setPosition(winSize.width / 2, winSize.height / 2);
-      //背景画像を画面の大きさに合わせるためのScaling処理
-      backgroundSprite.setScale(winSize.width / size.width, winSize.height / size.height);
-   }
+       this.scroll_gb = new Scroll_BG(this);
+      var tiledmap = new Tiledmap(this);
 
-});
-
-var levelLayer = cc.Layer.extend({
-   ctor: function() {
-      this._super();
-      var size = cc.director.getWinSize();
-      for (i = 0; i < 14; i++) {　　　　　　
-         for (j = 0; j < 33; j++) {
-            switch (level[i][j]) {
-              //足場ライン
-              case 1:
-                 var LineSprite = cc.Sprite.create(res.Line);
-                 LineSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(LineSprite);
-                 break;
-              //ブロックLine
-              case 2:
-                 var blockSprite = cc.Sprite.create(res.Lineblock);
-                 blockSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(blockSprite);
-                 break;
-              //色付き足場ライン青
-              case 4:
-                 var Line_BlueSprite = cc.Sprite.create(res.Line_Blue);
-                 Line_BlueSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Line_BlueSprite);
-                 break;
-            //色付き足場Line赤
-             case 5:
-                 var Line_RedSprite = cc.Sprite.create(res.Line_Red);
-                 Line_RedSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Line_RedSprite);
-                 break;
-            //色付き足場ライン黄色
-             case 6:
-                 var Line_YellowSprite = cc.Sprite.create(res.Line_Yellow);
-                 Line_YellowSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Line_YellowSprite);
-                 break;
-            //壁
-             case 7:
-                 var Wall_LineSprite = cc.Sprite.create(res.Wall_Line);
-                 Wall_LineSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Wall_LineSprite);
-                 break;
-            //壁青
-             case 8:
-                 var Wall_Line_BlueSprite = cc.Sprite.create(res.Wall_Line_Blue);
-                 Wall_Line_BlueSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Wall_Line_BlueSprite);
-                 break;
-            //壁赤
-             case 9:
-                 var Wall_Line_RedSprite = cc.Sprite.create(res.Wall_Line_Red);
-                 Wall_Line_RedSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Wall_Line_RedSprite);
-                 break;
-            //壁黄色
-             case 10:
-                 var Wall_Line_YellowSprite = cc.Sprite.create(res.Wall_Line_Yellow);
-                 Wall_Line_YellowSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Wall_Line_YellowSprite);
-                 break;
-                 //梯子上
-             case 11:
-                 var Ladder_TopSprite = cc.Sprite.create(res.Ladder_Top);
-                 Ladder_TopSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Ladder_TopSprite);
-                 break;
-                 //梯子上青
-             case 12:
-                 var Ladder_Top_BlueSprite = cc.Sprite.create(res.Ladder_Top_Blue);
-                 Ladder_Top_BlueSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Ladder_Top_Blue);
-                 break;
-                 //梯子上赤
-             case 13:
-                 var Ladder_Top_RedSprite = cc.Sprite.create(res.Ladder_Top_Red);
-                 Ladder_Top_RedSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Ladder_Top_Red);
-                 break;
-                 //梯子上黄色
-             case 14:
-                 var Ladder_Top_YellowSprite = cc.Sprite.create(res.Ladder_Top_Yellow);
-                 Ladder_Top_YellowSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Ladder_Top_YellowSprite);
-                 break;
-                 //梯子
-             case 15:
-                 var LadderSprite = cc.Sprite.create(res.Ladder);
-                 LadderSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(LadderSprite);
-                 break;
-                 //梯子青
-             case 16:
-                 var Ladder_BlueSprite = cc.Sprite.create(res.Ladder_Blue);
-                 Ladder_BlueSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Ladder_BlueSprite);
-                 break;
-                 //梯子赤
-             case 17:
-                 var Ladder_RedSprite = cc.Sprite.create(res.Ladder_Red);
-                 Ladder_RedSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Ladder_RedSprite);
-                 break;
-                 //梯子黄色
-             case 18:
-                 var Ladder_YellowSprite = cc.Sprite.create(res.Ladder_Yellow);
-                 Ladder_YellowSprite.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-                 this.addChild(Ladder_YellowSprite);
-                 break;
-
-            }
-         }
-      }
-   }
-});
+      this.player = new Player(this, PlayerStar_X, 188, SpriteTag.player);
+      //   var terrain  = new Terrain(this, 100,30,SpriteTag.terrain);
+      //   var koban  = new Objects(this, 250,30,SpriteTag.koban);
 
 
-var player;
-var player_bou;
-var playerLayer = cc.Layer.extend({
-   ctor: function() {
-      this._super();
-      player = new Player();
-      this.addChild(player);
-//===============スコア、鍵アイテムの追加=====================//
-//================スコアアイテム３====================//
-    topLayer = cc.Layer.create();
-    this.addChild(topLayer);
-    if (Starget >= 3)   //スコアアイテムを3つ手に入れてるか？
-    {
-      Star = cc.Sprite.create(res.StarGet_png);
-    }
-    else
-    {
-      Star = cc.Sprite.create(res.StarClear_png);
-    }
-    topLayer.addChild(Star, 0);
-    Star.setPosition(winSize.width / 1.85, winSize.height / 1.05);
-//==================スコアアイテム２===============//
-    topLayer = cc.Layer.create();
-    this.addChild(topLayer);
-    if (Starget >= 2)   //スコアアイテムを2つ手に入れてるか？
-    {
-      Star2 = cc.Sprite.create(res.StarGet_png);
-    }
-    else
-    {
-      Star2 = cc.Sprite.create(res.StarClear_png);
-    }
-    topLayer.addChild(Star2, 0);
-    Star2.setPosition(winSize.width / 2, winSize.height / 1.05);
-
-//=================スコアアイテム１===============//
-    topLayer = cc.Layer.create();
-    this.addChild(topLayer);
-    if (Starget >= 1)   //スコアアイテムを1つ手に入れてるか？
-    {
-      Star3 = cc.Sprite.create(res.StarGet_png);
-    }
-    else
-    {
-      Star3 = cc.Sprite.create(res.StarClear_png);
-    }
-    topLayer.addChild(Star3, 0);
-    Star3.setPosition(winSize.width / 2.18, winSize.height / 1.05);
-
-//===========鍵アイテムの表示設定=================//
-    topLayer = cc.Layer.create();
-    this.addChild(topLayer);
-    if (Key)   //鍵アイテムを手に入れているか？(trueか？)
-    {
-      Key = cc.Sprite.create(res.keyGet_png);
-    }
-    else
-    {
-      Key = cc.Sprite.create(res.KeyClear_png);
-    }
-    topLayer.addChild(Key, 0);
-    Key.setPosition(winSize.width / 1.7, winSize.height / 1.05);
-//===================================================================//
-      //ショッピングカートを操作するレイヤー
-
-      //左ボタン
-      leftBtn = cc.Sprite.create(res.leftbutton_png);
-      this.addChild(leftBtn, 0);
-      leftBtn.setPosition(60, 40);
-      leftBtn.setOpacity(128);
-      leftBtn.setTag(1);
-      //右ボタン
-      rightBtn = cc.Sprite.create(res.rightbutton_png);
-      this.addChild(rightBtn, 0);
-      rightBtn.setPosition(150, 40);
-      rightBtn.setOpacity(128);
-      rightBtn.setTag(2);
-
-      //ジャンプボタン
-      jumpBtn = cc.Sprite.create(res.rightbutton_png);
-      jumpBtn.setRotation(-90);
-      this.addChild(jumpBtn, 0);
-      jumpBtn.setPosition(winSize.width - 60, 40);
-      jumpBtn.setOpacity(128);
-      jumpBtn.setTag(3);
-
-
-      cc.eventManager.addListener(listener, leftBtn);
-      cc.eventManager.addListener(listener.clone(), rightBtn);
-      cc.eventManager.addListener(listener.clone(), jumpBtn);
-
-      cc.eventManager.addListener(keylistener, this);
-
-   }
-
-});
-
-
-var Player = cc.Sprite.extend({
-   ctor: function() {
-      this._super();
-      chara = this.initWithFile(res.Player1);
-      this.workingFlag = false;
-      this.xSpeed = 0;
-      this.ySpeed = 0;
-      this.jumpFlag = false;
-      for (i = 0; i < 14; i++) {　　　　　　
-         for (j = 0; j < 33; j++) {
-            if (level[i][j] == 3) {
-               this.setPosition(tileSize / 2 + tileSize * j, 32 * (14 - i) - tileSize / 2);
-               playerPosition = {
-                  x: j,
-                  y: i
-               };
-            }
-         }
-      }
       this.scheduleUpdate();
+
+      cc.eventManager.addListener({
+         event: cc.EventListener.KEYBOARD,
+         //キー入力したとき
+         onKeyPressed: function(keyCode, event) {
+            //    console.log(keyCode);
+
+            if (keyCode == 37) { //左
+               this.player.body.applyImpulse(cp.v(-10, 0), cp.v(0, 0)); //run speed
+               this.player.runAction(this.player.runningAction);
+               //var pos =   this.player.body.p;
+               //  player.body.setPos(cp.v(pos.x + 1, pos.y));
+
+            } else if (keyCode == 38) { //上
+               this.player.body.applyImpulse(cp.v(0, 10), cp.v(0, 0)); //run speed
+
+            } else if (keyCode == 39) { //右
+               this.player.body.applyImpulse(cp.v(10, 0), cp.v(0, 0)); //run speed
+            } else if (keyCode == 40) { //下
+
+            }
+         }.bind(this),
+         //キーを離したとき
+         onKeyReleased: function(keyCode, event) {
+            //  console.log("onKeyReleased");
+         }
+      }, this);
+
+
+      //this.collisionBegin.bind(this) bind(this)を付けると、イベントリスナーでthisが使えるようになる
+      space.setDefaultCollisionHandler(this.collisionBegin.bind(this), null, null, null);
+
+   },
+   addCallback: function(callback) {
+      callbacks.push(callback);
+   },
+   update: function(dt) {
+      space.step(dt);
+      for (var i = shapeArray.length - 1; i >= 0; i--) {
+         shapeArray[i].image.x = shapeArray[i].body.p.x
+         shapeArray[i].image.y = shapeArray[i].body.p.y
+            //   var angle = Math.atan2(-shapeArray[i].body.rot.y, shapeArray[i].body.rot.x);
+            //   shapeArray[i].image.rotation = angle * 57.2957795;
+      }
+
+      var dX = this.player.getDistanceX();
+      this.setPosition(cc.p(-dX, 0));
+      this.scroll_gb.checkAndReload(this.player.sprite.x );
+
+
+      //addCallback関数に登録された処理を順番に実行する
+      for (var i = 0; i < callbacks.length; ++i) {
+         callbacks[i]();
+      }
+      callbacks = [];
+
    },
 
+   collisionBegin: function(arbiter, space) {
 
-   //移動のため
-   update: function(dt) {
-      console.log(this.jumpFlag, this.ySpeed,this.workingFlag);
+      if (arbiter.a.tag == SpriteTag.terrain && arbiter.b.tag == SpriteTag.terrain) {
+         if (this.player.status == PlayerStatus.landing) {
+            cc.audioEngine.playEffect(res.landing_mp3);
+            this.player.status = PlayerStatus.idling;
+         }
+      } else {
 
-      if (this.xSpeed > 0) { //スピードが正の値（右方向移動）
-         //　向きを判定させる
-         this.setFlippedX(false);
-      }
-      if (this.xSpeed < 0) { //スピードが負の値（左方向移動）
-         this.setFlippedX(true);
-      }
-      //プレイヤーを降下させる処理　ジャンプボタンが押されてないときで、プレイヤが空中にある場合
-      if (this.jumpFlag == false) {
-         if (this.getPosition().y < tileSize * 1.6) this.ySpeed = 0;
-         else this.ySpeed = this.ySpeed - 0.5;
-
-      }
-      //位置を更新する
-      this.setPosition(this.getPosition().x + this.xSpeed, this.getPosition().y + this.ySpeed);
-      if (touching == true){
-        walk_flg++;
-        if (walk_flg == 5) chara = this.initWithFile(res.Player2);
-        if (walk_flg == 15) chara = this.initWithFile(res.Player3);
-        if (walk_flg == 25) chara = this.initWithFile(res.Player2);
-        if (walk_flg == 35) {chara = this.initWithFile(res.Player1);　walk_flg = 0;}
-      }
-      else {
-        chara = this.initWithFile(res.Player1);
-      }
-      /*if(touching_jump == true){
-        walk_flg++;
-        if(walk_flg == 5) chara = this.initWithFile(res.PlayerJump);
-      }
-      else{
-        chara = this.initWithFile(res.Player1);
-      }*/
-    }
-});
-
-
-//タッチリスナーの実装
-var listener = cc.EventListener.create({
-   event: cc.EventListener.TOUCH_ONE_BY_ONE,
-   // swallowTouches: true,
-   //タッチされた
-   onTouchBegan: function(touch, event) {
-      var target = event.getCurrentTarget();
-      var location = target.convertToNodeSpace(touch.getLocation());
-      var spriteSize = target.getContentSize();
-      var spriteRect = cc.rect(0, 0, spriteSize.width, spriteSize.height);
-
-      //タッチした場所が、スプライトの内部に収まっていたら
-      if (cc.rectContainsPoint(spriteRect, location)) {
-         console.log(target.getTag() + "Btnがタッチされました");
-
-
-         //タッチしたスプライトが左ボタンだったら
-         if (target.getTag()　 == 1) {
-            player.xSpeed = -2.5;
-            player.workingFlag = true;
-            leftBtn.setOpacity(255);
-            rightBtn.setOpacity(128);
-            //タッチしているというフラグオン
-            touching = true;
+         if (arbiter.a.tag == SpriteTag.koban || arbiter.b.tag == SpriteTag.koban) {
+            cc.audioEngine.playEffect(res.pickup_coin_mp3);
+         }
+         if (arbiter.a.tag == SpriteTag.food || arbiter.b.tag == SpriteTag.food) {
+            cc.audioEngine.playEffect(res.food_mp3);
+         }
+         if (arbiter.a.tag == SpriteTag.bomb || arbiter.b.tag == SpriteTag.bomb) {
+            cc.audioEngine.playEffect(res.explode_mp3);
+         }
+         if (arbiter.a.tag == SpriteTag.monster1 || arbiter.b.tag == SpriteTag.monster1) {
+            cc.audioEngine.playEffect(res.decide_mp3);
+         }
+         if (arbiter.a.tag == SpriteTag.monster2 || arbiter.b.tag == SpriteTag.monster2) {
+            cc.audioEngine.playEffect(res.decide_mp3);
+         }
+         console.log()
+         if (arbiter.a.tag == SpriteTag.player) {
+            var collision_obj = arbiter.b; // 衝突したShapeの取得
          } else {
-            //タッチしたスプライトが右ボタンだったら
-            if (target.getTag()　 == 2) {
-               player.xSpeed = 2.5;
-               player.workingFlag = true;
-               rightBtn.setOpacity(255);
-               leftBtn.setOpacity(128);
-               //タッチしているというフラグオン
-               touching = true;
+            var collision_obj = arbiter.a; // 衝突したShapeの取得
+         }
+         //衝突したオブジェクトを消すのは、update関数で定期的に行う
+         this.addCallback(function() {
+            for (var int = 0; int < objectArray.length; int++) { // 衝突したコインを探す
+               var object = objectArray[int]; // 配置済みオブジェクトの取得
+               if (object.shape == collision_obj) { // 衝突したコインの場合
+                  console.log("hit");
+                  object.removeFromParent();
+                  break; // 処理を抜ける
+               }
             }
-         }
-         //タッチしたスプライトがジャンプボタンだったら
-         if (target.getTag()　 == 3) {
-            if (player.jumpFlag == false && player.ySpeed == 0) player.ySpeed = 5;
-            player.jumpFlag = true;
-            jumpBtn.setOpacity(255);
-            touching = true;
-            //ジャンプボタンタッチフラグオン
-            //touching_jump = true;
-         }
+         }.bind(this));
       }
+
       return true;
    },
-   //タッチを止めたときは、移動スピードを0にする
-   onTouchEnded: function(touch, event) {
-     //タッチ終了時タッチフラグをオフ
-     touching = false;
-     //touching_jump = false;
-      player.jumpFlag = false;
-      player.workingFlag = false;
-      player.xSpeed = 0;
-      //player.ySpeed = 0;
-      leftBtn.setOpacity(128);
-      rightBtn.setOpacity(128);
-      jumpBtn.setOpacity(128);
+
+
+});
+
+// this.addPostStepCallback(function() { // ステップ処理終了時に実行
+//    for (var int = 0; int < this.shapeArray.length; int++) { // 衝突したコインを探す
+//       var shape = this.shapeArray[int]; // 配置済みオブジェクトの取得
+//       if (shape == shapes[1]) { // 衝突したコインの場合
+//          shape.removeFromParent(); // 削除処理を実行
+//          this.shapeArray.splice(int, 1); // 配列から削除
+//          break; // 処理を抜ける
+//       }
+//    }
+// }.bind(this)); // レイヤーのthisを使えるようにする
+
+/*
+
+var touchListener = cc.EventListener.create({
+   event: cc.EventListener.TOUCH_ONE_BY_ONE, // シングルタッチのみ対応
+   swallowTouches: false, // 以降のノードにタッチイベントを渡す
+   onTouchBegan: function(touch, event) { // タッチ開始時
+      var pos = touch.getLocation();
+
+      console.log("shapeArray.length:", shapeArray.length)
+         // すべてのshapをチェックする
+      for (var i = 0; i < shapeArray.length; i++) {
+         var shape = shapeArray[i];
+         console.log("shape.type:", i, shape.type)
+            //pointQueryは物理オブジェクトの内側がタップされたかどうか判定する関数
+         if (shape.pointQuery(cp.v(pos.x, pos.y)) != undefined) {
+            console.log("hit ")
+            if (shape.name == SpriteTag.destroyable) {
+               //ブロックをタップしたときは、消去する
+               space.removeBody(shape.getBody());
+               space.removeShape(shape);
+               gameLayer.removeChild(shape.image);
+               shapeArray.splice(i, 1);
+               console.log("remove block")
+               return;
+            } else if (shape.name == SpriteTag.totem) {
+               // トーテムをタップしたときは、衝撃を与える
+               shape.body.applyImpulse(cp.v(500, 0), cp.v(0, -20))
+               return;
+            }
+         }
+      }
+      // 何も無い場所をタップしたときは箱を追加する
+      gameLayer.addBody(pos.x, pos.y, 24, 24, true, res.brick1x1_png, SpriteTag.destroyable);
+      return;
+
    }
 
 });
+*/
 
-//キーボードリスナーの実装
-var keylistener = cc.EventListener.create({
-   event: cc.EventListener.KEYBOARD,
-   // swallowTouches: true,
 
-   onKeyPressed: function(keyCode, event) {
-      if (keyCode == 37) { // a-Keyで左に移動
-         player.xSpeed = -2.5;
-         touching = true;
-         leftBtn.setOpacity(255);
-         rightBtn.setOpacity(128);
-      }
-      if (keyCode == 39) { // d-Keyで左に移動
-         player.xSpeed = 2.5;
-         touching = true;
-         rightBtn.setOpacity(255);
-         leftBtn.setOpacity(128);
-      }
-      if (keyCode == 32 || keyCode == 38) { // スペースキーか上矢印キーでジャンプ
-         if (player.jumpFlag == false && player.ySpeed == 0) player.ySpeed = 5;
-         player.jumpFlag = true;
-         touching = true;
-         jumpBtn.setOpacity(255);
-      }
-      return true;
-   },
-   onKeyReleased: function(keyCode, event) {
-      player.jumpFlag = false;
-      touching = false;
-      player.xSpeed = 0;
-      //player.ySpeed = 0;
-      leftBtn.setOpacity(128);
-      rightBtn.setOpacity(128);
-      jumpBtn.setOpacity(128);
-   },
-
-});
+//  addBody: function(posX, posY, width, height, isDynamic, spriteImage, type) {
+//     if (isDynamic) {
+//        var body = new cp.Body(1, cp.momentForBox(1, width, height));
+//     } else {
+//        var body = new cp.Body(Infinity, Infinity);
+//     }
+//     body.setPos(cp.v(posX, posY));
+//     var bodySprite = cc.Sprite.create(spriteImage);
+//     gameLayer.addChild(bodySprite, 0);
+//     bodySprite.setPosition(posX, posY);
+//     if (isDynamic) {
+//        space.addBody(body);
+//     }
+//     var shape = new cp.BoxShape(body, width, height);
+//     shape.setFriction(1);
+//     shape.setElasticity(0);
+//     shape.name = type;
+//     shape.setCollisionType(type);
+//     shape.image = bodySprite;
+//     space.addShape(shape);
+//     shapeArray.push(shape);
+//  },
